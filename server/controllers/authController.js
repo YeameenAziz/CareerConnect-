@@ -126,4 +126,67 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+// Update logged-in user's profile
+const updateProfile = async (req, res) => {
+  try {
+    const { name, phone, location, skills } = req.body;
+
+    // Find logged-in user
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Update only allowed fields
+    if (name !== undefined) {
+      if (!name.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Name cannot be empty"
+        });
+      }
+      user.name = name.trim();
+    }
+
+    if (phone !== undefined) user.phone = phone;
+    if (location !== undefined) user.location = location;
+
+    if (skills !== undefined) {
+      if (!Array.isArray(skills)) {
+        return res.status(400).json({
+          success: false,
+          message: "Skills must be an array"
+        });
+      }
+      user.skills = skills;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        location: user.location,
+        skills: user.skills
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+module.exports = { register, login, updateProfile };

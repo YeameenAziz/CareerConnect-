@@ -1,6 +1,6 @@
 
 const express = require("express");
-const { register, login } = require("../controllers/authController");
+const { register, login, updateProfile } = require("../controllers/authController");
 const { protect, authorizeRoles } = require("../middleware/authMiddleware");
 const router = express.Router();
 
@@ -43,6 +43,12 @@ router.get(
       user: req.user
     });
   }
+);
+
+router.put(
+  "/update-profile",
+  protect,
+  updateProfile
 );
 
 module.exports = router;
